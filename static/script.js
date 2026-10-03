@@ -1,25 +1,36 @@
 async function predictHealth() {
 
     const soilMoisture =
-        document.getElementById("soil_moisture").value;
+        document.getElementById(
+            "soil_moisture"
+        ).value;
 
     const temperature =
-        document.getElementById("temperature").value;
+        document.getElementById(
+            "temperature"
+        ).value;
 
     const humidity =
-        document.getElementById("humidity").value;
+        document.getElementById(
+            "humidity"
+        ).value;
 
     const leafMoisture =
-        document.getElementById("leaf_moisture").value;
+        document.getElementById(
+            "leaf_moisture"
+        ).value;
 
     const sunlight =
-        document.getElementById("sunlight").value;
+        document.getElementById(
+            "sunlight"
+        ).value;
 
     const soilPH =
-        document.getElementById("soil_ph").value;
+        document.getElementById(
+            "soil_ph"
+        ).value;
 
 
-    // Check empty fields
     if (
         soilMoisture === "" ||
         temperature === "" ||
@@ -29,97 +40,121 @@ async function predictHealth() {
         soilPH === ""
     ) {
 
-        alert("Please enter all plant condition values.");
+        alert(
+            "Please enter all values."
+        );
 
         return;
     }
 
 
-    // Show loading
-    document.getElementById("loading").style.display =
-        "block";
+    document
+        .getElementById("loading")
+        .classList
+        .remove("hidden");
 
-    document.getElementById("result").style.display =
-        "none";
+
+    document
+        .getElementById("result")
+        .classList
+        .add("hidden");
 
 
     try {
 
-        const response = await fetch("/predict", {
+        const response =
+            await fetch(
+                "/predict",
+                {
+                    method: "POST",
 
-            method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-            headers: {
-                "Content-Type": "application/json"
-            },
+                    body: JSON.stringify({
 
-            body: JSON.stringify({
+                        soil_moisture:
+                            soilMoisture,
 
-                soil_moisture: soilMoisture,
+                        temperature:
+                            temperature,
 
-                temperature: temperature,
+                        humidity:
+                            humidity,
 
-                humidity: humidity,
+                        leaf_moisture:
+                            leafMoisture,
 
-                leaf_moisture: leafMoisture,
+                        sunlight:
+                            sunlight,
 
-                sunlight: sunlight,
-
-                soil_ph: soilPH
-
-            })
-
-        });
-
-
-        const data = await response.json();
+                        soil_ph:
+                            soilPH
+                    })
+                }
+            );
 
 
-        document.getElementById("loading").style.display =
-            "none";
+        const data =
+            await response.json();
+
+
+        document
+            .getElementById("loading")
+            .classList
+            .add("hidden");
 
 
         if (data.success) {
 
-            document.getElementById("result").style.display =
-                "block";
+            document
+                .getElementById("result")
+                .classList
+                .remove("hidden");
 
 
-            document.getElementById("resultTitle")
+            document
+                .getElementById("result-title")
                 .innerText =
-                data.result.replace("_", " ").toUpperCase();
+                data.result
+                    .replace(
+                        "_",
+                        " "
+                    )
+                    .toUpperCase();
 
 
-            document.getElementById("confidence")
+            document
+                .getElementById("confidence")
                 .innerText =
                 data.confidence;
 
 
-            document.getElementById("message")
+            document
+                .getElementById("message")
                 .innerText =
                 data.message;
 
-        }
-
-        else {
+        } else {
 
             alert(data.message);
 
         }
 
-    }
 
-    catch (error) {
+    } catch (error) {
 
-        document.getElementById("loading").style.display =
-            "none";
+        document
+            .getElementById("loading")
+            .classList
+            .add("hidden");
 
         alert(
-            "Something went wrong. Please check the server."
+            "Server connection error."
         );
 
         console.error(error);
-
     }
-
 }

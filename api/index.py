@@ -1,11 +1,40 @@
 from flask import Flask, render_template, request, jsonify
 import json
 import math
+import os
 
-app = Flask(__name__)
+
+BASE_DIR = os.path.dirname(
+    os.path.dirname(
+        os.path.abspath(__file__)
+    )
+)
 
 
-with open("model.json", "r") as file:
+app = Flask(
+    __name__,
+    template_folder=os.path.join(
+        BASE_DIR,
+        "templates"
+    ),
+    static_folder=os.path.join(
+        BASE_DIR,
+        "static"
+    )
+)
+
+
+MODEL_PATH = os.path.join(
+    BASE_DIR,
+    "model.json"
+)
+
+
+with open(
+    MODEL_PATH,
+    "r"
+) as file:
+
     model = json.load(file)
 
 
@@ -22,7 +51,11 @@ classes = model["classes"]
 
 
 def relu(x):
-    return max(0.0, x)
+
+    return max(
+        0.0,
+        x
+    )
 
 
 def softmax(values):
@@ -30,15 +63,19 @@ def softmax(values):
     maximum = max(values)
 
     exp_values = [
-        math.exp(x - maximum)
-        for x in values
+        math.exp(
+            value - maximum
+        )
+        for value in values
     ]
 
-    total = sum(exp_values)
+    total = sum(
+        exp_values
+    )
 
     return [
-        x / total
-        for x in exp_values
+        value / total
+        for value in exp_values
     ]
 
 
@@ -49,7 +86,8 @@ def predict(values):
     for i in range(6):
 
         value = (
-            values[i] - means[i]
+            values[i] -
+            means[i]
         ) / stds[i]
 
         normalized.append(value)
@@ -57,7 +95,9 @@ def predict(values):
 
     hidden = []
 
-    for j in range(len(b1)):
+    for j in range(
+        len(b1)
+    ):
 
         value = b1[j]
 
@@ -79,7 +119,9 @@ def predict(values):
 
         value = b2[k]
 
-        for j in range(len(hidden)):
+        for j in range(
+            len(hidden)
+        ):
 
             value += (
                 hidden[j] *
@@ -89,18 +131,23 @@ def predict(values):
         output.append(value)
 
 
-    probabilities = softmax(output)
+    probabilities = softmax(
+        output
+    )
 
-    prediction_index = probabilities.index(
+
+    index = probabilities.index(
         max(probabilities)
     )
 
-    result = classes[prediction_index]
+
+    result = classes[index]
 
     confidence = (
-        probabilities[prediction_index] *
+        probabilities[index] *
         100
     )
+
 
     return result, confidence
 
@@ -208,6 +255,5 @@ if __name__ == "__main__":
 
     app.run(
         host="0.0.0.0",
-        port=5000,
-        debug=True
+        port=5000
     )

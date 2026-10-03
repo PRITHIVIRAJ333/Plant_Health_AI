@@ -1,124 +1,498 @@
-import pandas as pd
-import numpy as np
-import os
+import csv
+import json
+import random
+import math
 
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout
-from tensorflow.keras.utils import to_categorical
+random.seed(42)
 
 
-# Load dataset
-data = pd.read_csv("dataset.csv")
+def relu(x):
+    return max(0.0, x)
 
-print("Dataset loaded successfully!")
-print("Total records:", len(data))
 
-# Input columns
-X = data[
-    [
-        "Soil_Moisture",
-        "Temperature",
-        "Humidity",
-        "Leaf_Moisture",
-        "Sunlight",
-        "Soil_pH"
+def relu_derivative(x):
+    if x > 0:
+        return 1.0
+    return 0.0
+
+
+def softmax(values):
+    maximum = max(values)
+
+    exp_values = [
+        math.exp(x - maximum)
+        for x in values
     ]
-].values
 
-# Output column
-y = data["Plant_Health"].values
+    total = sum(exp_values)
 
-# Convert text labels into numbers
-encoder = LabelEncoder()
-y_encoded = encoder.fit_transform(y)
+    return [
+        x / total
+        for x in exp_values
+    ]
 
-print("Classes:", encoder.classes_)
 
-# Convert labels to categorical
-y_categorical = to_categorical(y_encoded)
+# ==============================
+# LOAD DATASET
+# ==============================
 
-# Split dataset
-X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y_categorical,
-    test_size=0.2,
-    random_state=42,
-    stratify=y_encoded
+X = []
+y = []
+
+with open("dataset.csv", "r") as file:
+
+    reader = csv.DictReader(file)
+
+    for row in reader:
+
+        features = [
+            float(row["Soil_Moisture"]),
+            float(row["Temperature"]),
+            float(row["Humidity"]),
+            float(row["Leaf_Moisture"]),
+            float(row["Sunlight"]),
+            float(row["Soil_pH"])
+        ]
+
+        X.append(features)
+
+        label = row["Plant_Health"]
+
+        if label == "Healthy":
+            y.append(0)
+
+        elif label == "Needs_Attention":
+            y.append(1)
+
+        else:
+            y.append(2)
+
+
+print("====================================")
+print("Dataset loaded successfully!")
+print("Total records:", len(X))
+print("====================================")
+
+
+# ==============================
+# NORMALIZATION
+# ==============================
+
+feature_count = 6
+
+means = []
+stds = []
+
+for j in range(feature_count):
+
+    values = [
+        X[i][j]
+        for i in range(len(X))
+    ]
+
+    mean = sum(values) / len(values)
+
+    variance = sum(
+        (value - mean) ** 2
+        for value in values
+    ) / len(values)
+
+    std = math.sqrt(variance)
+
+    if std == 0:
+        std = 1
+
+    means.append(mean)
+    stds.append(std)
+
+
+for i in range(len(X)):
+
+    for j in range(feature_count):
+
+        X[i][j] = (
+            X[i][j] - means[j]
+        ) / stds[j]
+
+
+# ==============================
+# SHUFFLE
+# ==============================
+
+combined = list(zip(X, y))
+
+random.shuffle(combined)
+
+X = [
+    item[0]
+    for item in combined
+]
+
+y = [
+    item[1]
+    for item in combined
+]
+
+
+# ==============================
+# TRAIN / TEST SPLIT
+# ==============================
+
+split_index = int(len(X) * 0.8)
+
+X_train = X[:split_index]
+y_train = y[:split_index]
+
+X_test = X[split_index:]
+y_test = y[split_index:]
+
+
+print("Training records:", len(X_train))
+print("Testing records:", len(X_test))
+
+
+# ==============================
+# NEURAL NETWORK
+# ==============================
+
+input_size = 6
+hidden_size = 16
+output_size = 3
+
+
+W1 = [
+    [
+        random.uniform(-0.5, 0.5)
+        for _ in range(hidden_size)
+    ]
+    for _ in range(input_size)
+]
+
+b1 = [
+    0.0
+    for _ in range(hidden_size)
+]
+
+
+W2 = [
+    [
+        random.uniform(-0.5, 0.5)
+        for _ in range(output_size)
+    ]
+    for _ in range(hidden_size)
+]
+
+b2 = [
+    0.0
+    for _ in range(output_size)
+]
+
+
+# ==============================
+# FORWARD PROPAGATION
+# ==============================
+
+def forward(inputs):
+
+    hidden_raw = []
+
+    for j in range(hidden_size):
+
+        value = b1[j]
+
+        for i in range(input_size):
+
+            value += (
+                inputs[i] *
+                W1[i][j]
+            )
+
+        hidden_raw.append(value)
+
+
+    hidden = [
+        relu(value)
+        for value in hidden_raw
+    ]
+
+
+    output_raw = []
+
+    for k in range(output_size):
+
+        value = b2[k]
+
+        for j in range(hidden_size):
+
+            value += (
+                hidden[j] *
+                W2[j][k]
+            )
+
+        output_raw.append(value)
+
+
+    output = softmax(output_raw)
+
+    return (
+        hidden_raw,
+        hidden,
+        output_raw,
+        output
+    )
+
+
+# ==============================
+# TRAINING
+# ==============================
+
+epochs = 80
+learning_rate = 0.01
+
+print("")
+print("Training neural network...")
+print("")
+
+
+for epoch in range(epochs):
+
+    correct = 0
+    total_loss = 0.0
+
+
+    for inputs, target in zip(
+        X_train,
+        y_train
+    ):
+
+        (
+            hidden_raw,
+            hidden,
+            output_raw,
+            output
+        ) = forward(inputs)
+
+
+        loss = -math.log(
+            max(
+                output[target],
+                1e-10
+            )
+        )
+
+        total_loss += loss
+
+
+        prediction = output.index(
+            max(output)
+        )
+
+
+        if prediction == target:
+
+            correct += 1
+
+
+        # Output gradient
+
+        output_gradient = output[:]
+
+        output_gradient[target] -= 1
+
+
+        old_W2 = [
+            row[:]
+            for row in W2
+        ]
+
+
+        # Update W2
+
+        for j in range(hidden_size):
+
+            for k in range(output_size):
+
+                W2[j][k] -= (
+                    learning_rate *
+                    hidden[j] *
+                    output_gradient[k]
+                )
+
+
+        # Update b2
+
+        for k in range(output_size):
+
+            b2[k] -= (
+                learning_rate *
+                output_gradient[k]
+            )
+
+
+        # Hidden gradient
+
+        hidden_gradient = [
+            0.0
+            for _ in range(hidden_size)
+        ]
+
+
+        for j in range(hidden_size):
+
+            value = 0.0
+
+            for k in range(output_size):
+
+                value += (
+                    output_gradient[k] *
+                    old_W2[j][k]
+                )
+
+
+            hidden_gradient[j] = (
+                value *
+                relu_derivative(
+                    hidden_raw[j]
+                )
+            )
+
+
+        # Update W1
+
+        for i in range(input_size):
+
+            for j in range(hidden_size):
+
+                W1[i][j] -= (
+                    learning_rate *
+                    inputs[i] *
+                    hidden_gradient[j]
+                )
+
+
+        # Update b1
+
+        for j in range(hidden_size):
+
+            b1[j] -= (
+                learning_rate *
+                hidden_gradient[j]
+            )
+
+
+    accuracy = (
+        correct /
+        len(X_train)
+    ) * 100
+
+
+    average_loss = (
+        total_loss /
+        len(X_train)
+    )
+
+
+    if (
+        epoch == 0 or
+        (epoch + 1) % 10 == 0
+    ):
+
+        print(
+            f"Epoch {epoch + 1}/{epochs} "
+            f"- Loss: {average_loss:.4f} "
+            f"- Accuracy: {accuracy:.2f}%"
+        )
+
+
+# ==============================
+# TESTING
+# ==============================
+
+correct_test = 0
+
+
+for inputs, target in zip(
+    X_test,
+    y_test
+):
+
+    (
+        hidden_raw,
+        hidden,
+        output_raw,
+        output
+    ) = forward(inputs)
+
+
+    prediction = output.index(
+        max(output)
+    )
+
+
+    if prediction == target:
+
+        correct_test += 1
+
+
+test_accuracy = (
+    correct_test /
+    len(X_test)
+) * 100
+
+
+print("")
+print("====================================")
+print(
+    "Test Accuracy:",
+    round(test_accuracy, 2),
+    "%"
 )
-
-# Scale input values
-scaler = StandardScaler()
-
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
+print("====================================")
 
 
-# Create ANN model
-model = Sequential([
-    Dense(32, activation="relu", input_shape=(6,)),
-    Dropout(0.2),
+# ==============================
+# SAVE MODEL
+# ==============================
 
-    Dense(16, activation="relu"),
-    Dropout(0.1),
+model = {
 
-    Dense(8, activation="relu"),
+    "input_size": input_size,
 
-    Dense(3, activation="softmax")
-])
+    "hidden_size": hidden_size,
 
+    "output_size": output_size,
 
-# Compile model
-model.compile(
-    optimizer="adam",
-    loss="categorical_crossentropy",
-    metrics=["accuracy"]
-)
+    "W1": W1,
 
+    "b1": b1,
 
-# Train model
-print("\nTraining model...")
+    "W2": W2,
 
-history = model.fit(
-    X_train,
-    y_train,
-    epochs=80,
-    batch_size=8,
-    validation_split=0.2,
-    verbose=1
-)
+    "b2": b2,
+
+    "means": means,
+
+    "stds": stds,
+
+    "classes": [
+        "Healthy",
+        "Needs_Attention",
+        "Unhealthy"
+    ]
+}
 
 
-# Test model
-loss, accuracy = model.evaluate(X_test, y_test, verbose=0)
+with open(
+    "model.json",
+    "w"
+) as file:
 
-print("\nModel training completed!")
-print("Test Accuracy:", round(accuracy * 100, 2), "%")
-
-
-# Create model folder
-os.makedirs("model", exist_ok=True)
-
-
-# Save model
-model.save("model/plant_health_model.keras")
+    json.dump(
+        model,
+        file
+    )
 
 
-# Save scaler
-import pickle
-
-with open("model/scaler.pkl", "wb") as file:
-    pickle.dump(scaler, file)
-
-
-# Save label encoder
-with open("model/label_encoder.pkl", "wb") as file:
-    pickle.dump(encoder, file)
-
-
-print("\nModel saved successfully!")
-print("Location: model/plant_health_model.keras")
-print("Scaler saved successfully!")
-print("Label encoder saved successfully!")
+print("")
+print("Model saved successfully!")
+print("File: model.json")

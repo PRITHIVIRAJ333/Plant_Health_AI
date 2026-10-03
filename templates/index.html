@@ -5,203 +5,228 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Plant Health AI</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
 
 </head>
 
 
 <body>
 
-    <div class="container">
+<div class="page">
 
-        <header>
 
-            <div class="logo">
-                🌱
+    <header class="header">
+
+        <div class="leaf">
+            🌱
+        </div>
+
+        <h1>
+            PLANT HEALTH AI
+        </h1>
+
+        <p>
+            Deep Learning Based Plant Health Prediction
+        </p>
+
+    </header>
+
+
+    <div class="card">
+
+        <h2>
+            Plant Condition Analysis
+        </h2>
+
+        <p class="description">
+            Enter the plant environment values to predict plant health.
+        </p>
+
+
+        <div class="grid">
+
+
+            <div class="input-group">
+
+                <label>
+                    Soil Moisture (%)
+                </label>
+
+                <input
+                    type="number"
+                    id="soil_moisture"
+                    placeholder="65"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                >
+
             </div>
 
-            <h1>PLANT HEALTH AI</h1>
 
-            <p>
-                Deep Learning Based Plant Health Prediction
+            <div class="input-group">
+
+                <label>
+                    Temperature (°C)
+                </label>
+
+                <input
+                    type="number"
+                    id="temperature"
+                    placeholder="28"
+                    step="0.1"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>
+                    Humidity (%)
+                </label>
+
+                <input
+                    type="number"
+                    id="humidity"
+                    placeholder="70"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>
+                    Leaf Moisture (%)
+                </label>
+
+                <input
+                    type="number"
+                    id="leaf_moisture"
+                    placeholder="60"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>
+                    Sunlight (%)
+                </label>
+
+                <input
+                    type="number"
+                    id="sunlight"
+                    placeholder="75"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label>
+                    Soil pH
+                </label>
+
+                <input
+                    type="number"
+                    id="soil_ph"
+                    placeholder="6.5"
+                    min="0"
+                    max="14"
+                    step="0.1"
+                >
+
+            </div>
+
+        </div>
+
+
+        <button
+            onclick="predictHealth()"
+            class="predict-button"
+        >
+            PREDICT HEALTH
+        </button>
+
+
+        <div
+            id="loading"
+            class="loading hidden"
+        >
+            Analyzing plant conditions...
+        </div>
+
+
+        <div
+            id="result"
+            class="result hidden"
+        >
+
+            <div class="result-icon">
+                🌿
+            </div>
+
+            <h2 id="result-title">
+                HEALTHY
+            </h2>
+
+            <p class="confidence-text">
+
+                Confidence:
+
+                <strong id="confidence">
+                    0
+                </strong>%
+
             </p>
 
-        </header>
-
-
-        <main>
-
-            <section class="card">
-
-                <h2>Enter Plant Conditions</h2>
-
-                <p class="subtitle">
-                    Enter the environmental values below
-                    to predict plant health.
-                </p>
-
-
-                <div class="form-grid">
-
-                    <div class="input-box">
-
-                        <label>Soil Moisture (%)</label>
-
-                        <input
-                            type="number"
-                            id="soil_moisture"
-                            placeholder="Example: 65"
-                            min="0"
-                            max="100"
-                            step="0.1"
-                        >
-
-                    </div>
-
-
-                    <div class="input-box">
-
-                        <label>Temperature (°C)</label>
-
-                        <input
-                            type="number"
-                            id="temperature"
-                            placeholder="Example: 28"
-                            step="0.1"
-                        >
-
-                    </div>
-
-
-                    <div class="input-box">
-
-                        <label>Humidity (%)</label>
-
-                        <input
-                            type="number"
-                            id="humidity"
-                            placeholder="Example: 70"
-                            min="0"
-                            max="100"
-                            step="0.1"
-                        >
-
-                    </div>
-
-
-                    <div class="input-box">
-
-                        <label>Leaf Moisture (%)</label>
-
-                        <input
-                            type="number"
-                            id="leaf_moisture"
-                            placeholder="Example: 60"
-                            min="0"
-                            max="100"
-                            step="0.1"
-                        >
-
-                    </div>
-
-
-                    <div class="input-box">
-
-                        <label>Sunlight (%)</label>
-
-                        <input
-                            type="number"
-                            id="sunlight"
-                            placeholder="Example: 75"
-                            min="0"
-                            max="100"
-                            step="0.1"
-                        >
-
-                    </div>
-
-
-                    <div class="input-box">
-
-                        <label>Soil pH</label>
-
-                        <input
-                            type="number"
-                            id="soil_ph"
-                            placeholder="Example: 6.5"
-                            min="0"
-                            max="14"
-                            step="0.1"
-                        >
-
-                    </div>
-
-                </div>
-
-
-                <button
-                    onclick="predictHealth()"
-                    class="predict-btn"
-                >
-                    PREDICT HEALTH
-                </button>
-
-
-                <div
-                    id="loading"
-                    class="loading"
-                    style="display:none;"
-                >
-                    Analyzing plant conditions...
-                </div>
-
-
-                <div
-                    id="result"
-                    class="result"
-                    style="display:none;"
-                >
-
-                    <h2 id="resultTitle">
-                        HEALTHY
-                    </h2>
-
-                    <div class="confidence">
-
-                        Confidence:
-                        <span id="confidence">
-                            0
-                        </span>%
-
-                    </div>
-
-                    <p id="message"></p>
-
-                </div>
-
-            </section>
-
-        </main>
-
-
-        <footer>
-
-            <p>
-                Plant Health AI | Deep Learning Mini Project
+            <p id="message">
+                Plant analysis result.
             </p>
 
-        </footer>
+        </div>
 
     </div>
 
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <footer>
+
+        Plant Health AI
+
+        <span>•</span>
+
+        Deep Learning Mini Project
+
+    </footer>
+
+
+</div>
+
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
 

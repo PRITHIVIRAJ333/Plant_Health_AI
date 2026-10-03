@@ -4,309 +4,176 @@
     box-sizing: border-box;
 }
 
-
 body {
-
     font-family: Arial, sans-serif;
-
     min-height: 100vh;
-
-    background:
-        linear-gradient(
-            135deg,
-            #071a12,
-            #0b3d2e,
-            #124d3a
-        );
-
+    background: linear-gradient(
+        135deg,
+        #061a12,
+        #0a3b2a,
+        #12623e
+    );
     color: white;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    padding: 30px;
-
+    padding: 35px 20px;
 }
 
-
-.container {
-
+.page {
     width: 100%;
-
     max-width: 1000px;
-
+    margin: auto;
 }
 
-
-header {
-
+.header {
     text-align: center;
-
     margin-bottom: 30px;
-
 }
 
-
-.logo {
-
+.leaf {
     font-size: 55px;
-
     margin-bottom: 10px;
-
 }
 
-
-header h1 {
-
-    font-size: 38px;
-
+.header h1 {
+    font-size: 40px;
     letter-spacing: 2px;
-
 }
 
-
-header p {
-
+.header p {
     margin-top: 10px;
-
     color: #c9ddd4;
-
-    font-size: 17px;
-
+    font-size: 16px;
 }
-
 
 .card {
-
     background: rgba(255, 255, 255, 0.10);
-
-    border: 1px solid rgba(255, 255, 255, 0.15);
-
-    backdrop-filter: blur(15px);
-
+    border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 25px;
-
     padding: 35px;
-
+    backdrop-filter: blur(15px);
     box-shadow:
-        0 20px 50px rgba(0, 0, 0, 0.35);
-
+        0 20px 50px rgba(0, 0, 0, 0.30);
 }
-
 
 .card h2 {
-
     text-align: center;
-
-    font-size: 25px;
-
-    margin-bottom: 8px;
-
+    font-size: 26px;
 }
 
-
-.subtitle {
-
+.description {
     text-align: center;
-
-    color: #c9ddd4;
-
+    color: #bdd3ca;
+    margin-top: 8px;
     margin-bottom: 30px;
-
 }
 
-
-.form-grid {
-
+.grid {
     display: grid;
-
-    grid-template-columns:
-        repeat(2, 1fr);
-
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
-
 }
 
-
-.input-box {
-
+.input-group {
     display: flex;
-
     flex-direction: column;
-
 }
 
-
-.input-box label {
-
+.input-group label {
     margin-bottom: 8px;
-
     font-size: 14px;
-
-    color: #dceee7;
-
+    color: #d7ebe2;
 }
 
-
-.input-box input {
-
+.input-group input {
     padding: 14px;
-
     border: none;
-
     outline: none;
-
     border-radius: 12px;
-
     font-size: 16px;
-
-    background: rgba(255,255,255,0.95);
-
-    color: #123;
-
 }
 
-
-.input-box input:focus {
-
+.input-group input:focus {
     box-shadow:
-        0 0 0 3px rgba(100, 220, 160, 0.35);
-
+        0 0 0 3px
+        rgba(55, 210, 130, 0.35);
 }
 
-
-.predict-btn {
-
+.predict-button {
     width: 100%;
-
     margin-top: 30px;
-
     padding: 16px;
-
     border: none;
-
     border-radius: 12px;
-
-    background: #39c77a;
-
+    background: #35c878;
     color: white;
-
     font-size: 17px;
-
     font-weight: bold;
-
     cursor: pointer;
-
-    transition: 0.3s;
-
 }
 
-
-.predict-btn:hover {
-
-    transform: translateY(-2px);
-
-    background: #2eae68;
-
+.predict-button:hover {
+    background: #29aa65;
 }
-
 
 .loading {
-
     text-align: center;
-
     margin-top: 25px;
-
-    color: #bdebd1;
-
+    color: #bde8d0;
 }
-
 
 .result {
-
     margin-top: 30px;
-
     padding: 25px;
-
-    border-radius: 18px;
-
     text-align: center;
-
-    background: rgba(0,0,0,0.25);
-
+    border-radius: 18px;
+    background: rgba(0, 0, 0, 0.25);
 }
 
+.result-icon {
+    font-size: 45px;
+    margin-bottom: 10px;
+}
 
 .result h2 {
-
     font-size: 30px;
-
     margin-bottom: 10px;
-
 }
 
-
-.confidence {
-
+.confidence-text {
     font-size: 18px;
-
     margin-bottom: 12px;
-
 }
-
 
 #message {
-
-    color: #d9eee4;
-
+    color: #d5e9df;
     line-height: 1.6;
-
 }
 
+.hidden {
+    display: none;
+}
 
 footer {
-
     text-align: center;
-
     margin-top: 25px;
-
-    color: #aac8bc;
-
+    color: #9fbdb0;
     font-size: 13px;
-
 }
 
+footer span {
+    margin: 0 8px;
+}
 
 @media (max-width: 700px) {
 
-    body {
-
-        padding: 15px;
-
+    .grid {
+        grid-template-columns: 1fr;
     }
-
-
-    header h1 {
-
-        font-size: 28px;
-
-    }
-
 
     .card {
-
         padding: 22px;
-
     }
 
-
-    .form-grid {
-
-        grid-template-columns: 1fr;
-
+    .header h1 {
+        font-size: 29px;
     }
-
 }
