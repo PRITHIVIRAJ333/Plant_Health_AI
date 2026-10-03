@@ -1,0 +1,125 @@
+async function predictHealth() {
+
+    const soilMoisture =
+        document.getElementById("soil_moisture").value;
+
+    const temperature =
+        document.getElementById("temperature").value;
+
+    const humidity =
+        document.getElementById("humidity").value;
+
+    const leafMoisture =
+        document.getElementById("leaf_moisture").value;
+
+    const sunlight =
+        document.getElementById("sunlight").value;
+
+    const soilPH =
+        document.getElementById("soil_ph").value;
+
+
+    // Check empty fields
+    if (
+        soilMoisture === "" ||
+        temperature === "" ||
+        humidity === "" ||
+        leafMoisture === "" ||
+        sunlight === "" ||
+        soilPH === ""
+    ) {
+
+        alert("Please enter all plant condition values.");
+
+        return;
+    }
+
+
+    // Show loading
+    document.getElementById("loading").style.display =
+        "block";
+
+    document.getElementById("result").style.display =
+        "none";
+
+
+    try {
+
+        const response = await fetch("/predict", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+                soil_moisture: soilMoisture,
+
+                temperature: temperature,
+
+                humidity: humidity,
+
+                leaf_moisture: leafMoisture,
+
+                sunlight: sunlight,
+
+                soil_ph: soilPH
+
+            })
+
+        });
+
+
+        const data = await response.json();
+
+
+        document.getElementById("loading").style.display =
+            "none";
+
+
+        if (data.success) {
+
+            document.getElementById("result").style.display =
+                "block";
+
+
+            document.getElementById("resultTitle")
+                .innerText =
+                data.result.replace("_", " ").toUpperCase();
+
+
+            document.getElementById("confidence")
+                .innerText =
+                data.confidence;
+
+
+            document.getElementById("message")
+                .innerText =
+                data.message;
+
+        }
+
+        else {
+
+            alert(data.message);
+
+        }
+
+    }
+
+    catch (error) {
+
+        document.getElementById("loading").style.display =
+            "none";
+
+        alert(
+            "Something went wrong. Please check the server."
+        );
+
+        console.error(error);
+
+    }
+
+}
